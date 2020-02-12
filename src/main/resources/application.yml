@@ -1,0 +1,21 @@
+server:
+  port: 9876
+spring:
+  application:
+    name: code-generator
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://192.168.200.128:3306/tensquare_notice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    username: root
+    password: root
+#　配置
+AutoCode:
+  createPojo: 1   # 0:代表不生成, 1:代表生成 默认为 1
+  createDao: 1    # 0:代表不生成, 1:代表生成 默认为 1
+  createServiceAndController: 1   # 0:代表不生成, 1:代表生成 默认为 1
+  useMapper: 0    # 0:代表通用mapper， 1：代表mybatis Plus
+  packageName: com.tensquare      # 设置包名
+  rootPath: d:/tensquare          # 保存路径
+  useLombok: true                 # 使用lombok
+  projectName: tensquare_parent   # 项目父工程
+  myAuthor: Zack_Tzh                # 作者
