@@ -20,10 +20,10 @@ spring:
 #　配置
 AutoCode:
   TableName: local_port_monitor,java_invoke_fair  #生成指定的表
-  createPojo: 1   # 0:代表不生成, 1:代表生成 默认为 1
-  createDao: 1    # 0:代表不生成, 1:代表生成 默认为 1
-  createServiceAndController: 1   # 0:代表不生成, 1:代表生成 默认为 1
-  useMapper: 0    # 0:代表通用mapper， 1：代表mybatis Plus
+  createPojo: 1                     # 0:代表不生成, 1:代表生成 默认为 1
+  createDao: 1                      # 0:代表不生成, 1:代表生成 默认为 1
+  createServiceAndController: 1     # 0:代表不生成, 1:代表生成 默认为 1
+  useMapper: 0                      # 0:代表通用mapper， 1：代表mybatis Plus
   packageName: com.highnes          # 设置包名
   rootPath: f:/yijie                # 保存路径
   useLombok: true                   # 使用lombok
