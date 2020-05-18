@@ -4,18 +4,50 @@ spring:
   application:
     name: code-generator
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://192.168.200.128:3306/tensquare_notice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
-    username: root
-    password: root
+    driver‐class‐name: com.mysql.jdbc.Driver
+    # useUnicode 使用编码  characterEncoding 编码格式  serverTimezone 设置时区
+    url: jdbc:mysql://rm-2zez6s06887o9h99d5o.mysql.rds.aliyuncs.com/pre_egenew_buff?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: pre_egenew
+    password: hIuEj9QLVHnJRTuN
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      pool-name: KevinHikariPool
+      maximum-pool-size: 60
+      connection-timeout: 60000
+      minimum-idle: 20
+      idle-timeout: 60000
+      max-lifetime: 1800000
 #　配置
 AutoCode:
+  TableName: local_port_monitor,java_invoke_fair  #生成指定的表
   createPojo: 1   # 0:代表不生成, 1:代表生成 默认为 1
   createDao: 1    # 0:代表不生成, 1:代表生成 默认为 1
   createServiceAndController: 1   # 0:代表不生成, 1:代表生成 默认为 1
   useMapper: 0    # 0:代表通用mapper， 1：代表mybatis Plus
-  packageName: com.tensquare      # 设置包名
-  rootPath: d:/tensquare          # 保存路径
-  useLombok: true                 # 使用lombok
-  projectName: tensquare_parent   # 项目父工程
+  packageName: com.highnes          # 设置包名
+  rootPath: f:/yijie                # 保存路径
+  useLombok: true                   # 使用lombok
+  projectName: im                   # 项目父工程
   myAuthor: Zack_Tzh                # 作者
+
+
+
+#   注意需要
+#   代码生成后需要在${packageName}目录下创建common包，添加三个类PageResult.java、Result.java、StatusCode.java
+#   导入依赖如下依赖：
+#
+#  <dependency>
+#    <groupId>javax.persistence</groupId>
+#    <artifactId>persistence-api</artifactId>
+#    <version>1.0</version>
+#  </dependency>
+#  <dependency>
+#    <groupId>tk.mybatis</groupId>
+#    <artifactId>mapper-spring-boot-starter</artifactId>
+#    <version>2.0.4</version>
+#  </dependency>
+#  <dependency>
+#    <groupId>org.projectlombok</groupId>
+#    <artifactId>lombok</artifactId>
+#    <optional>true</optional>
+#  </dependency>

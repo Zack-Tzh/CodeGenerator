@@ -22,9 +22,6 @@ public class CodeController {
     @Autowired
     private CodeService codeService;
 
-    @Value("${AutoCode.packageName}")
-    private String packageName;
-
 
     public void AutoCode(Integer createPojo, Integer createDao, Integer createServiceAndController) throws Exception {
         //获取数据库中的表
@@ -33,20 +30,24 @@ public class CodeController {
         //生成pojo
         if (createPojo == 1) {
             for (String table : tables.keySet()) {
-                codeService.createPojo(packageName,table,tables.get(table));
+                codeService.createPojo(table,tables.get(table));
             }
         }
 
         //生成dao
         if (createDao == 1) {
             for (String table : tables.keySet()) {
-                codeService.createMapper(packageName, table);
+                codeService.createMapper(table);
             }
         }
 
         //生成ServiceAndController
         if (createServiceAndController == 1) {
-
+            for (String table : tables.keySet()) {
+                codeService.createController(table);
+            }
         }
+
+
     }
 }

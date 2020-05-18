@@ -51,6 +51,12 @@ public class CodeService {
     @Value("${AutoCode.projectName}")
     private String projectName;
 
+    @Value("${AutoCode.packageName}")
+    private String packageName;
+
+    @Value("${AutoCode.TableName}")
+    private String[] tableName;
+
 
     /**
      * 获取表名和字段
@@ -63,25 +69,56 @@ public class CodeService {
 
         Connection connection = dataSource.getConnection();
         ResultSet rs = connection.getMetaData().getTables(connection.getCatalog(), null, null, new String[]{"TABLE"});
-
+        List<String> strList = Arrays.asList(tableName);
+        HashMap<String, Collection<Field>> oneMap = new HashMap<>();
         while (rs.next()) {
             //获取表名
             String table = rs.getString("TABLE_NAME");
+            if (strList.contains(table)) {
+                //获取表的字段
+                Map<String, Field> fileds = getTableFiled(table);
+                List<String> ids = getTableIds(table);
 
+                //标记为主键的字段
+                ids.forEach(id -> fileds.get(id).setKey(true));
 
-            //获取表的字段
-            Map<String, Field> fileds = getTableFiled(table);
-            List<String> ids = getTableIds(table);
-
-            //标记为主键的字段
-            ids.forEach(id -> fileds.get(id).setKey(true));
-
-            map.put(table, fileds.values());
+                oneMap.put(table, fileds.values());
+            }
         }
         rs.close();
         connection.close();
+        return reFiled(oneMap);
+    }
+
+    /**
+     * 将字段名转换 对获取的filed字段处理 将 spu_id  转换为  spuId
+     *
+     * @param map
+     * @return
+     */
+    public Map<String, Collection<Field>> reFiled(Map<String, Collection<Field>> map) {
+
+        Set<String> keySet = map.keySet();
+        for (String key : keySet) {
+
+            Collection<Field> fields = map.get(key);
+            for (Field field : fields) {
+                String filed = field.getName();
+                String[] split = filed.split("_");
+                if (split.length != 1) {
+                    filed = split[0];
+                    for (int i = 1; i < split.length; i++) {
+                        char[] cs = split[i].toCharArray();
+                        cs[0] -= 32;
+                        filed += String.valueOf(cs);
+                    }
+                }
+                field.setName(filed);
+            }
+        }
         return map;
     }
+
 
     /**
      * 将表名转换为类名
@@ -173,7 +210,7 @@ public class CodeService {
      * @return
      */
     private Map<String, String> getDataBaseDataType() {
-        Map<String, String> typeMap = new HashMap<String, String>(12);
+        Map<String, String> typeMap = new HashMap<String, String>(14);
         typeMap.put("int", "Integer");
         typeMap.put("tinyint", "Integer");
         typeMap.put("smallint", "Integer");
@@ -181,6 +218,8 @@ public class CodeService {
         typeMap.put("bigint", "Integer");
         typeMap.put("float", "Float");
         typeMap.put("double", "Double");
+        typeMap.put("longtext", "String");
+        typeMap.put("text", "String");
         typeMap.put("decimal", "BigDecimal");
         typeMap.put("varchar", "String");
         typeMap.put("char", "String");
@@ -198,7 +237,7 @@ public class CodeService {
      * @throws IOException
      */
     private void writeFile(String packageName, String name, String content) throws IOException {
-        String path = rootPath;
+        String path = rootPath+"/src/main/java";
         path += "/" + packageName.replace(".", "/");
         File file = new File(path);
         if (!file.exists()) {
@@ -211,12 +250,11 @@ public class CodeService {
     /**
      * 创建Mapper文件
      *
-     * @param packageName
      * @param table
      * @throws Exception
      */
-    public void createMapper(String packageName, String table) throws Exception {
-        String mapperPackage = String.format("%s.mapper", packageName);
+    public void createMapper(String table) throws Exception {
+        String mapperPackage = String.format("%s.dao", packageName);
         //将表名转换为类名，去掉下划线的前缀
         String className = reName(table);
         String fileName = String.format("%sMapper.java", className);
@@ -243,11 +281,10 @@ public class CodeService {
     /**
      * 生成pojo类
      *
-     * @param packageName
      * @param table
      * @param fields
      */
-    public void createPojo(String packageName, String table, Collection<Field> fields) throws IOException, TemplateException {
+    public void createPojo(String table, Collection<Field> fields) throws IOException, TemplateException {
         //拼接包名
         String pojoPackage = String.format("%s.pojo", packageName);
         //将表名转换为类名，去掉下划线的前缀
@@ -361,7 +398,7 @@ public class CodeService {
             if (field.getKey()) {
                 if (useMapper.equals("1")) {
                     body.append("    @TableId(type = IdType.INPUT)\n");
-                }else {
+                } else {
                     body.append("    @Id\n");
                 }
             }
@@ -372,10 +409,85 @@ public class CodeService {
 
     /**
      * 获取当前时间
+     *
      * @return
      */
-    private String getDateToString(){
+    private String getDateToString() {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return simpleDateFormat.format(new Date());
+    }
+
+    /**
+     * 生成Controller
+     *
+     * @param table
+     */
+    public void createController(String table) throws IOException, TemplateException {
+        //拼接包名
+        String controllerPackage = String.format("%s.controller", packageName);
+        //将表名转换为类名，去掉下划线的前缀
+        String className = reName(table);
+        //拼接类名
+        String fileName = String.format("%sController.java", className);
+
+        char[] chars = className.toCharArray();
+        chars[0] += 32;
+
+        String modelClassMin = String.valueOf(chars);
+
+        //添加到map中
+        Map<String, Object> data = new HashMap<>(7);
+        data.put("controllerPackage", controllerPackage);
+        data.put("packageName", packageName);
+        data.put("modelClass", className);
+        data.put("modelClassMin", modelClassMin);
+        data.put("projectName", projectName);
+        data.put("author", myAuthor);
+        data.put("date", getDateToString());
+
+        StringWriter out = new StringWriter();
+        Template template = configuration.getTemplate("controller.ftl");
+        template.process(data, out);
+        writeFile(controllerPackage, fileName, out.toString());
+
+        //service
+
+        //拼接包名
+        String servicePackage = String.format("%s.service", packageName);
+        //拼接类名
+        fileName = String.format("%sService.java", className);
+
+        data = new HashMap<>(7);
+        data.put("servicePackage", servicePackage);
+        data.put("packageName", packageName);
+        data.put("modelClass", className);
+        data.put("modelClassMin", modelClassMin);
+        data.put("projectName", projectName);
+        data.put("author", myAuthor);
+        data.put("date", getDateToString());
+        out = new StringWriter();
+        template = configuration.getTemplate("service.ftl");
+        template.process(data, out);
+        writeFile(servicePackage, fileName, out.toString());
+
+        //serviceImpl
+
+        //拼接包名
+        String serviceImplPackage = String.format("%s.service.impl", packageName);
+        //拼接类名
+        fileName = String.format("%sServiceImpl.java", className);
+
+        data = new HashMap<>(7);
+        data.put("serviceImplPackage", serviceImplPackage);
+        data.put("packageName", packageName);
+        data.put("modelClass", className);
+        data.put("modelClassMin", modelClassMin);
+        data.put("projectName", projectName);
+        data.put("author", myAuthor);
+        data.put("date", getDateToString());
+        out = new StringWriter();
+        template = configuration.getTemplate("serviceimpl.ftl");
+        template.process(data, out);
+        writeFile(serviceImplPackage, fileName, out.toString());
     }
 }

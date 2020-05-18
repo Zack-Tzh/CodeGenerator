@@ -1,6 +1,7 @@
 package ${mapperPackage};
 
 import ${modelPackage}.${modelClass};
+import org.springframework.stereotype.Repository;
 import tk.mybatis.mapper.common.Mapper;
 
 /**
@@ -10,4 +11,5 @@ import tk.mybatis.mapper.common.Mapper;
  * @author: ${author}
  * @date: ${date}
  */
-public interface ${modelClass}Mapper implements Mapper<${modelClass}> {}
+@Repository
+public interface ${modelClass}Mapper extends Mapper<${modelClass}> {}
