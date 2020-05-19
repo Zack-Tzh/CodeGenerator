@@ -66,7 +66,7 @@ public class ${modelClass}Controller {
     * @return
     */
     @PutMapping(value="/{id}")
-    public Result update(@RequestBody ${modelClass} ${modelClassMin},@PathVariable Long id){
+    public Result update(@RequestBody ${modelClass} ${modelClassMin},@PathVariable Integer id){
         ${modelClassMin}.setId(id);
         ${modelClassMin}Service.update(${modelClassMin});
         return new Result(0,"修改成功");
