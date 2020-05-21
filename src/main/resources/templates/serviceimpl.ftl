@@ -1,16 +1,12 @@
 package ${serviceImplPackage};
 
 import ${packageName}.pojo.${modelClass};
-import ${packageName}.mapper.${modelClass}Mapper;
+import ${packageName}.dao.${modelClass}Mapper;
 import ${packageName}.service.${modelClass}Service;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import tk.mybatis.mapper.entity.Example;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @title: ${modelClass}Mapper
